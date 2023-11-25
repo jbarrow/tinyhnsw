@@ -174,3 +174,13 @@ print(skiplist.find(-1) is not None)
 skiplist.delete(7)
 
 print(skiplist)
+print(skiplist.find(7) is not None)
+print(skiplist.insert(8))
+print(skiplist)
+
+skiplist.delete(2)
+skiplist.delete(14)
+skiplist.delete(1)
+skiplist.delete(-1)
+
+print(skiplist)

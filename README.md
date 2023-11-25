@@ -45,3 +45,22 @@ vectors = numpy.random.randn(10, 100)
 index = HNSWIndex(d=10)
 index.add(vectors)
 ```
+
+### Skip Lists
+You can use the skip-lists as follows:
+
+```python
+from tinyhnsw.skip_list import SkipList
+
+list = [3, 2, 1, 7, 14, 9, 6]
+skiplist = SkipList(list)
+print(skiplist)
+```
+
+Which will return something like the following (but not exactly, it's a random data structure after all):
+
+```
+2 |   2 3     9
+1 |   2 3 6   9 14
+0 | 1 2 3 6 7 9 14
+```

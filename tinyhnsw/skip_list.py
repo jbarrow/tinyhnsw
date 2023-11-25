@@ -28,6 +28,10 @@ class SkipList:
             self.insert(value)
 
     def _random_level(self) -> int:
+        """
+        Coin-flipping implementation for sampling -- we could make this more
+        efficient using the alias method.
+        """
         level = 0
         while random.random() < self.p and level < self.max_level:
             level += 1
@@ -64,21 +68,36 @@ class SkipList:
                 node.pointers[i] = new_node
 
     def find(self, value: int) -> bool:
-        # we can rely on our closest node algorithm
-        closest_node = self.closest_node(value)
-        return closest_node.value == value
+        current = self.header
+        level = self.level
 
-    def closest_node(self, value: int) -> Node:
-        pass
+        while level >= 0 and current.pointers[0] is not None:
+            next = current.pointers[level]
+            # move down a level
+            if next is None or next.value > value:
+                level -= 1
+                continue
+            # closest node is current node -- return it
+            if next.value == value:
+                return True
+            # move over one pointer
+            if next.value < value:
+                current = current.pointers[level]
+
+        return False
 
     def delete(self, value: int) -> None:
         pass
 
-    def tolist(self) -> list[int]:
+    """
+    Everything below here are just helper functions for testing and pretty-printing:
+    """
+
+    def tolist(self, level: int = 0) -> list[int]:
         output = []
         current = self.header
-        while current.pointers[0] is not None:
-            current = current.pointers[0]
+        while current.pointers[level] is not None:
+            current = current.pointers[level]
             output.append(current.value)
         return output
 
@@ -94,7 +113,7 @@ class SkipList:
 
             while current.pointers[level] is not None:
                 current = current.pointers[level]
-                spacing = [' ' for _ in range(1, list.index(current.value) - ix)]
+                spacing = [" " for _ in range(1, list.index(current.value) - ix)]
                 values.extend([*spacing, str(current)])
                 ix = list.index(current.value)
 
@@ -118,3 +137,7 @@ list = [3, 2, 1, 7, 14, 9, 6]
 skiplist = SkipList(list)
 print(skiplist)
 print(skiplist.tolist())
+
+print(skiplist.find(6))
+print(skiplist.find(25))
+print(skiplist.find(-1))

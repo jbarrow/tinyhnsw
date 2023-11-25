@@ -1,5 +1,5 @@
 from __future__ import annotations
-from hnsw.index import Index
+from tinyhnsw.index import Index
 
 import numpy
 

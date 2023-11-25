@@ -1,3 +1,8 @@
+"""
+Simple implementation of skip-lists in python, one of the two important algorithms to
+understand to implement/understand HNSW.
+"""
+
 import random
 
 

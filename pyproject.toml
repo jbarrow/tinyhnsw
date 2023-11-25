@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "tinyhnsw"
+version = "0.1.0"
+description = ""
+authors = ["Joe Barrow <joseph.d.barrow@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

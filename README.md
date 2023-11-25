@@ -3,7 +3,7 @@
 TinyHNSW is a tiny, simple implementation of HNSW in Python with minimal dependencies.
 It has an associated set of tutorials that build up to understanding how HNSW works.
 
-# Outline
+# Tutorial Outline
 
 1. [Introduction](chapters/0_introduction.md)
 2. [Nearest Neighbor Search](chapters/1_nearest_neighbor_search.md)
@@ -12,3 +12,34 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 5. [Navigable Small Worlds](chapters/4_navigable_small_worlds.md)
 6. [HNSW](chapters/5_hnsw.md)
 7. [Limitations](chapters/6_limitations.md)
+
+# Library Usage
+
+⚠️ `tinyhnsw` is NOT production-quality.
+Compared to literally *any* standard implementation, it's slow and probably buggy.
+If you want to use an Approximate Nearest Neighbor library in a real application, consider something like FAISS.
+
+With that disclaimer out of the way, here is how you use it/set it up.
+
+## Installation
+
+To install `tinyhnsw`, run the following command:
+
+```sh
+pip install -Ue .
+```
+
+This will install the library and all its dependencies (`numpy`, `networkx`, `scipy`, `tqdm`).
+
+## Usage
+
+```python
+from tinyhnsw import HNSWIndex
+
+import numpy
+
+vectors = numpy.random.randn(10, 100)
+
+index = HNSWIndex(d=10)
+index.add(vectors)
+```

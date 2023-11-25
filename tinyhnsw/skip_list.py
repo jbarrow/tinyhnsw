@@ -67,7 +67,7 @@ class SkipList:
                 new_node.pointers[i] = node.pointers[i]
                 node.pointers[i] = new_node
 
-    def find(self, value: int) -> bool:
+    def find(self, value: int) -> Node | None:
         current = self.header
         level = self.level
 
@@ -79,15 +79,44 @@ class SkipList:
                 continue
             # closest node is current node -- return it
             if next.value == value:
-                return True
+                return next
             # move over one pointer
             if next.value < value:
                 current = current.pointers[level]
 
-        return False
-
     def delete(self, value: int) -> None:
-        pass
+        node = self.find(value)
+
+        if node is None:
+            return
+
+        # list of all nodes that might need to update their forward pointer
+        update = [None for _ in range(self.max_level + 1)]
+        # step 1 is to traverse the skip-list and make a list of all the
+        # nodes that need to be updated
+        current = self.header
+
+        for level in range(self.level, -1, -1):
+            while (
+                current.pointers[level] is not None
+                and current.pointers[level].value < value
+            ):
+                current = current.pointers[level]
+
+            if (
+                current
+                and current.pointers[level]
+                and current.pointers[level].value == value
+            ):
+                update[level] = current
+
+        for level, parent in enumerate(update):
+            if parent is None:
+                continue
+
+            parent.pointers[level] = node.pointers[level]
+
+        del node
 
     """
     Everything below here are just helper functions for testing and pretty-printing:
@@ -138,6 +167,10 @@ skiplist = SkipList(list)
 print(skiplist)
 print(skiplist.tolist())
 
-print(skiplist.find(6))
-print(skiplist.find(25))
-print(skiplist.find(-1))
+print(skiplist.find(6) is not None)
+print(skiplist.find(25) is not None)
+print(skiplist.find(-1) is not None)
+
+skiplist.delete(7)
+
+print(skiplist)

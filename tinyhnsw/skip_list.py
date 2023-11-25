@@ -16,6 +16,10 @@ class Node:
 
 
 class SkipList:
+    """
+    Our skip-list implementation. Note that it doesn't support duplicates (!!!), so it's more
+    of a skip-set.
+    """
     def __init__(self, lst: list[int] = [], max_level: int = 2, p: float = 0.5) -> None:
         assert max_level >= 0
 
@@ -150,17 +154,6 @@ class SkipList:
 
         return output
 
-
-def test_random_level():
-    for i in range(5):
-        s = SkipList(max_level=i, p=0.5)
-        for j in range(10):
-            level = s._random_level()
-            print(i, level)
-            assert level <= i
-
-
-# test_random_level()
 
 list = [3, 2, 1, 7, 14, 9, 6]
 skiplist = SkipList(list)

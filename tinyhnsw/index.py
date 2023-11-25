@@ -1,17 +1,20 @@
 from __future__ import annotations
-from tinyhnsw.index import Index
 
 import numpy
 
 
-class HNSWIndex(Index):
+class Index:
+    is_trained: bool
+    ntotal: int
+
     def __init__(self, d: int) -> None:
-        super().__init__(d)
+        self.ntotal = 0
+        self.d = d
 
     def add(self, vectors: numpy.ndarray) -> None:
-        return
+        raise NotImplementedError()
 
     def search(
         self, query: numpy.ndarray, k: int
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
-        return ()
+        raise NotImplementedError()

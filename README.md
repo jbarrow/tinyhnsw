@@ -40,7 +40,7 @@ from tinyhnsw import HNSWIndex
 
 import numpy
 
-vectors = numpy.random.randn((100, 10))
+vectors = numpy.random.randn(100, 10)
 
 index = HNSWIndex(d=10)
 index.add(vectors)

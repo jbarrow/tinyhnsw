@@ -7,7 +7,8 @@ import urllib.request as request
 from contextlib import closing
 
 
-DATA_PATH = os.path.join('data', 'siftsmall', 'siftsmall_base.fvecs')
+DATA_PATH = os.path.join("data", "siftsmall", "siftsmall_base.fvecs")
+
 
 def download_sift() -> None:
     """
@@ -27,14 +28,14 @@ def download_sift() -> None:
 
 
 def read_fvecs(path: str) -> numpy.ndarray:
-    a = numpy.fromfile(path, dtype='int32')
+    a = numpy.fromfile(path, dtype="int32")
     d = a[0]
-    return a.reshape(-1, d + 1)[:, 1:].copy().view('float32')
+    return a.reshape(-1, d + 1)[:, 1:].copy().view("float32")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if not os.path.exists(DATA_PATH):
         download_sift()
-    
+
     vectors = read_fvecs(DATA_PATH)
     print(vectors.shape)

@@ -155,25 +155,8 @@ class SkipList:
         return output
 
 
-list = [3, 2, 1, 7, 14, 9, 6]
-skiplist = SkipList(list)
-print(skiplist)
-print(skiplist.tolist())
-
-print(skiplist.find(6) is not None)
-print(skiplist.find(25) is not None)
-print(skiplist.find(-1) is not None)
-
-skiplist.delete(7)
-
-print(skiplist)
-print(skiplist.find(7) is not None)
-print(skiplist.insert(8))
-print(skiplist)
-
-skiplist.delete(2)
-skiplist.delete(14)
-skiplist.delete(1)
-skiplist.delete(-1)
-
-print(skiplist)
+if __name__ == "__main__":
+    list = [3, 2, 1, 7, 14, 9, 6]
+    skiplist = SkipList(list)
+    print(skiplist)
+    print(skiplist.tolist())

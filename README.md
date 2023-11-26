@@ -50,6 +50,11 @@ print(index.ntotal)
 ```
 
 ### Skip Lists
+
+📝 As part of understanding how HNSW works, the tutorial walks you through how skip lists work and how to implement one. 
+However, this implementation is not particularly robust and only works with integer keys.
+It's there for teaching purposes, as understanding skip lists will really help understand how HNSW works.
+
 You can use the skip lists as follows:
 
 ```python
@@ -80,3 +85,37 @@ s.insert(5)
 s.tolist()
 # => [1, 2, 5, 6, 7, 9, 14]
 ```
+
+### Navigable Small Worlds (NSWs)
+
+📝 The second part of understanding how HNSW works is understanding how NSWs work.
+Again, we provide a teaching implementation in this repo, but it's not meant for much more than teaching.
+
+## Testing
+
+There are a few different kinds of tests in this repo:
+
+1. correctness tests
+2. timing tests
+3. accuracy tests
+
+### Correctness Tests
+
+To run the correctness tests, simply run:
+
+```sh
+poetry run pytest
+```
+
+### Timing Tests
+
+Make sure you've downloaded the data:
+
+```sh
+python tinyhnsw/utils.py
+```
+
+Which will download the [SIFT10K dataset](http://corpus-texmex.irisa.fr) to the `data/` folder.
+
+### Accuracy Tests
+

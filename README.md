@@ -10,7 +10,7 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 1. [ ] [Introduction](chapters/0_introduction.md)
 2. [ ] [Nearest Neighbor Search](chapters/1_nearest_neighbor_search.md)
 3. [ ] [An Overview of HNSW](chapters/2_hnsw_overview.md)
-4. [ ] [Skip-Lists](chapters/3_skip_lists.md)
+4. [ ] [Skip Lists](chapters/3_skip_lists.md)
 5. [ ] [Navigable Small Worlds](chapters/4_navigable_small_worlds.md)
 6. [ ] [HNSW](chapters/5_hnsw.md)
 7. [ ] [Limitations](chapters/6_limitations.md)
@@ -47,14 +47,14 @@ index.add(vectors)
 ```
 
 ### Skip Lists
-You can use the skip-lists as follows:
+You can use the skip lists as follows:
 
 ```python
 from tinyhnsw.skip_list import SkipList
 
 list = [3, 2, 1, 7, 14, 9, 6]
-skiplist = SkipList(list)
-print(skiplist)
+s = SkipList(list)
+print(s)
 ```
 
 Which will return something like the following (but not exactly, it's a random data structure after all):
@@ -63,4 +63,17 @@ Which will return something like the following (but not exactly, it's a random d
 2 |   2 3     9
 1 |   2 3 6   9 14
 0 | 1 2 3 6 7 9 14
+```
+
+You have a few basic operations:
+
+```python
+s.find(3)
+# => Node(value=3, pointers=[...])
+s.delete(3)
+# => None ; removes item from skiplist
+s.insert(5)
+# => None ; inserts the element 5
+s.tolist()
+# => [1, 2, 5, 6, 7, 9, 14]
 ```

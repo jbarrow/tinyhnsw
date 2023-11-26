@@ -40,10 +40,13 @@ from tinyhnsw import HNSWIndex
 
 import numpy
 
-vectors = numpy.random.randn(10, 100)
+vectors = numpy.random.randn((100, 10))
 
 index = HNSWIndex(d=10)
 index.add(vectors)
+
+print(index.ntotal)
+# => 100
 ```
 
 ### Skip Lists

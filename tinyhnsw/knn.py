@@ -30,7 +30,7 @@ class FullNNIndex(Index):
     def search(
         self, query: numpy.ndarray, k: int
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
-        similarity = _cosine_similarity(self.vectors, query)
+        similarity = cosine_similarity(self.vectors, query)
         indices = (-similarity).argsort(axis=0)[:k, :].T
         scores = numpy.array(
             [similarity[indices[i, :], i] for i in range(len(indices))]
@@ -43,7 +43,7 @@ def _normalize(X: numpy.ndarray) -> numpy.ndarray:
     return X / numpy.expand_dims(numpy.linalg.norm(X, axis=1), axis=1)
 
 
-def _cosine_similarity(X: numpy.ndarray, Y: numpy.ndarray) -> numpy.ndarray:
+def cosine_similarity(X: numpy.ndarray, Y: numpy.ndarray) -> numpy.ndarray:
     X = _normalize(X)
     Y = _normalize(Y)
 

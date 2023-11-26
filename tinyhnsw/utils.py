@@ -40,8 +40,13 @@ def read_vecs(path: str, ivecs: bool = False) -> numpy.ndarray:
     return matrix
 
 
-def evaluate():
-    pass
+def evaluate(gold: numpy.ndarray, predictions: numpy.ndarray) -> float:
+    """
+    Compute Recall@1;
+        - gold: array of shape (k,) -- integers
+        - predictions: array of shape (k,) -- integers
+    """
+    return sum(gold==predictions)
 
 
 def load_sift() -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
@@ -51,5 +56,5 @@ def load_sift() -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
     return (
         read_vecs(DATA_PATH),
         read_vecs(QUERY_PATH),
-        read_vecs(LABEL_PATH, ivecs=True),
+        read_vecs(LABEL_PATH, ivecs=True)[:, 0],
     )

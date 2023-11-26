@@ -35,6 +35,8 @@ This will install the library and all its dependencies (`numpy`, `networkx`, `sc
 
 ## Usage
 
+### HNSW Index
+
 ```python
 from tinyhnsw import HNSWIndex
 
@@ -48,6 +50,26 @@ index.add(vectors)
 print(index.ntotal)
 # => 100
 ```
+
+### Full NN Index
+
+You can evaluate the full nearest neighbors index with the following command:
+
+```python
+from tinyhnsw.utils import load_sift, evaluate
+from tinyhnsw import FullNNIndex
+
+data, queries, labels = load_sift()
+
+index = FullNNIndex(128)
+index.add(data)
+
+D, I = index.search(queries, k=10)
+
+print(f"Recall@1: {evaluate(labels, I[:, 0])}")
+```
+
+On my M2 MacBook Air with `numpy=1.26.2`, that runs in 0.25s and results in a recall@1 of 98%.
 
 ### Skip Lists
 

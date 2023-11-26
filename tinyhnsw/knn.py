@@ -1,6 +1,6 @@
 from __future__ import annotations
 from tinyhnsw.index import Index
-from tinyhnsw.utils import load_sift
+from tinyhnsw.utils import load_sift, evaluate
 
 import numpy
 
@@ -29,7 +29,10 @@ class FullNNIndex(Index):
         self, query: numpy.ndarray, k: int
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
         similarity = _cosine_similarity(self.vectors, query)
-        return (similarity, None)
+        indices = (-similarity).argsort(axis=0)[:k, :].T
+        scores = numpy.array([similarity[indices[i, :], i] for i in range(len(indices))])
+
+        return scores, indices
 
 
 def _normalize(X: numpy.ndarray) -> numpy.ndarray:
@@ -44,14 +47,11 @@ def _cosine_similarity(X: numpy.ndarray, Y: numpy.ndarray) -> numpy.ndarray:
 
 
 if __name__ == '__main__':
-    data, queries, labels = load_sift()[:100]
+    data, queries, labels = load_sift()
 
     index = FullNNIndex(128)
     index.add(data)
 
-    print(index.search(queries, k=10))
+    D, I = index.search(queries, k=10)
 
-    print(data.shape)
-    print(queries.shape)
-    print(labels.shape)
-    print(labels[0,:])
+    print(f"Recall@1: {evaluate(labels, I[:, 0])}")

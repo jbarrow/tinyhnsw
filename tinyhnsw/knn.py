@@ -23,14 +23,18 @@ class FullNNIndex(Index):
         if self.vectors is None:
             self.vectors = vectors
         else:
-            pass
+            self.vectors = numpy.append(self.vectors, vectors, axis=0)
+
+        self.ntotal = self.vectors.shape[0]
 
     def search(
         self, query: numpy.ndarray, k: int
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
         similarity = _cosine_similarity(self.vectors, query)
         indices = (-similarity).argsort(axis=0)[:k, :].T
-        scores = numpy.array([similarity[indices[i, :], i] for i in range(len(indices))])
+        scores = numpy.array(
+            [similarity[indices[i, :], i] for i in range(len(indices))]
+        )
 
         return scores, indices
 
@@ -46,7 +50,7 @@ def _cosine_similarity(X: numpy.ndarray, Y: numpy.ndarray) -> numpy.ndarray:
     return numpy.dot(X, Y.T)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     data, queries, labels = load_sift()
 
     index = FullNNIndex(128)

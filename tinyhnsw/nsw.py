@@ -1,4 +1,6 @@
 import numpy as np
+
+from tinyhnsw.utils import evaluate, load_sift
 from tinyhnsw.knn import cosine_similarity
 
 class NSWIndex:
@@ -81,17 +83,18 @@ class NSWIndex:
 # Test the NSWIndex with some data
 index = NSWIndex()
 
-# Adding some random vectors
-for _ in range(10):
-    vec = np.random.random(10)  # Random 10-dimensional vector
-    index.add_item(vec)
+data, queries, labels = load_sift()
 
-# Query with a random vector
-query_vec = np.random.random(10)
-nearest_neighbor_idx = index.greedy_search(query_vec, index.get_random_entry_point())
-nearest_neighbor = index.data[nearest_neighbor_idx]
+for i, vector in enumerate(data):
+    index.add_item(vector)
 
-print("Query Vector:", query_vec)
-print("Nearest Neighbor Index:", nearest_neighbor_idx)
-print("Nearest Neighbor Vector:", nearest_neighbor)
-print("Distance:", NSWIndex.distance(query_vec, nearest_neighbor))
+print("added")
+
+idxs = []
+for vector in queries:
+    idxs.append(index.greedy_search(vector, index.get_random_entry_point()))
+
+print(idxs)
+print(labels)
+
+print(f"Recall@1: {evaluate(labels, np.array(idxs))}")

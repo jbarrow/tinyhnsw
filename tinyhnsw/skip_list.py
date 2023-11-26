@@ -22,13 +22,18 @@ class SkipList:
     of a skip-set.
     """
 
-    def __init__(self, lst: list[int] = [], max_level: int = 2, p: float = 0.5) -> None:
+    def __init__(
+        self, lst: list[int] | None = None, max_level: int = 2, p: float = 0.5
+    ) -> None:
         assert max_level >= 0
 
         self.max_level = max_level  # note: max_level is 0-indexed (0 means 1 level, 1 means 2 levls, etc.)
         self.level = 0
         self.p = p
         self.header = Node(value=-1, level=self.max_level)
+
+        if lst is None:
+            lst = []
 
         for value in lst:
             self.insert(value)
@@ -90,39 +95,35 @@ class SkipList:
             if next.value < value:
                 current = current.pointers[level]
 
+        return None
+
     def delete(self, value: int) -> None:
-        node = self.find(value)
-
-        if node is None:
-            return
-
-        # list of all nodes that might need to update their forward pointer
         update = [None for _ in range(self.max_level + 1)]
-        # step 1 is to traverse the skip-list and make a list of all the
-        # nodes that need to be updated
         current = self.header
 
+        # Traverse the skip-list and make a list of all the nodes that need to be updated
         for level in range(self.level, -1, -1):
             while (
                 current.pointers[level] is not None
                 and current.pointers[level].value < value
             ):
                 current = current.pointers[level]
+            update[level] = current
 
-            if (
-                current
-                and current.pointers[level]
-                and current.pointers[level].value == value
-            ):
-                update[level] = current
+        # If the next node is the target node, update the pointers
+        if current.pointers[0] is not None and current.pointers[0].value == value:
+            for level in range(self.level + 1):
+                if (
+                    update[level].pointers[level] is not None
+                    and update[level].pointers[level].value == value
+                ):
+                    update[level].pointers[level] = (
+                        update[level].pointers[level].pointers[level]
+                    )
 
-        for level, parent in enumerate(update):
-            if parent is None:
-                continue
-
-            parent.pointers[level] = node.pointers[level]
-
-        del node
+            # Remove levels that have no nodes
+            while self.level > 0 and self.header.pointers[self.level] is None:
+                self.level -= 1
 
     """
     Everything below here are just helper functions for testing and pretty-printing:
@@ -158,7 +159,7 @@ class SkipList:
 
 
 if __name__ == "__main__":
-    list = [3, 2, 1, 7, 14, 9, 6]
-    skiplist = SkipList(list)
+    values = [3, 2, 1, 7, 14, 9, 6]
+    skiplist = SkipList(values)
     print(skiplist)
     print(skiplist.tolist())

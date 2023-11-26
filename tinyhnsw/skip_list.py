@@ -2,6 +2,7 @@
 Simple implementation of skip-lists in python, one of the two important algorithms to
 understand to implement/understand HNSW.
 """
+from __future__ import annotations
 
 import random
 
@@ -20,6 +21,7 @@ class SkipList:
     Our skip-list implementation. Note that it doesn't support duplicates (!!!), so it's more
     of a skip-set.
     """
+
     def __init__(self, lst: list[int] = [], max_level: int = 2, p: float = 0.5) -> None:
         assert max_level >= 0
 

@@ -8,6 +8,8 @@ from contextlib import closing
 
 
 DATA_PATH = os.path.join("data", "siftsmall", "siftsmall_base.fvecs")
+QUERY_PATH = os.path.join("data", "siftsmall", "siftsmall_query.fvecs")
+LABEL_PATH = os.path.join("data", "siftsmall", "siftsmall_groundtruth.ivecs")
 
 
 def download_sift() -> None:
@@ -27,15 +29,27 @@ def download_sift() -> None:
     tar.extractall("data")
 
 
-def read_fvecs(path: str) -> numpy.ndarray:
+def read_vecs(path: str, ivecs: bool = False) -> numpy.ndarray:
     a = numpy.fromfile(path, dtype="int32")
     d = a[0]
-    return a.reshape(-1, d + 1)[:, 1:].copy().view("float32")
+    matrix = a.reshape(-1, d + 1)[:, 1:].copy()
+
+    if not ivecs:
+        matrix = matrix.view("float32")
+
+    return matrix
 
 
-if __name__ == "__main__":
+def evaluate():
+    pass
+
+
+def load_sift() -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
     if not os.path.exists(DATA_PATH):
         download_sift()
 
-    vectors = read_fvecs(DATA_PATH)
-    print(vectors.shape)
+    return (
+        read_vecs(DATA_PATH),
+        read_vecs(QUERY_PATH),
+        read_vecs(LABEL_PATH, ivecs=True),
+    )

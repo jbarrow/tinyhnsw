@@ -58,3 +58,7 @@ def load_sift() -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
         read_vecs(QUERY_PATH),
         read_vecs(LABEL_PATH, ivecs=True)[:, 0],
     )
+
+
+if __name__ == '__main__':
+    load_sift()

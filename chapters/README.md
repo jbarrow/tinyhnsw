@@ -7,4 +7,4 @@
 5. [Navigable Small Worlds](4_navigable_small_worlds.md)
 6. [HNSW](5_hnsw.md)
 7. [Limitations](6_limitations.md)
-
+8. [Filtering](7_filtering.md)

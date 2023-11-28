@@ -14,6 +14,7 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 5. [ ] [Navigable Small Worlds](chapters/4_navigable_small_worlds.md)
 6. [ ] [HNSW](chapters/5_hnsw.md)
 7. [ ] [Limitations](chapters/6_limitations.md)
+8. [ ] [Filtering](chapters/7_filtering.md)
 
 ## Code Completeness
 
@@ -24,6 +25,7 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 5. [ ] Navigable Small Worlds
 6. [ ] HNSW
 7. [ ] Limitations
+8. [ ] Filtering
 
 # Library Usage
 

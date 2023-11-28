@@ -65,7 +65,7 @@ print(index.ntotal)
 
 You can also visualize each layer of the HNSW graph using the following code:
 
-```
+```python
 from tinyhnsw.hnsw import visualize_hnsw_index
 
 # ... set up index here
@@ -167,3 +167,9 @@ Which will download the [SIFT10K dataset](http://corpus-texmex.irisa.fr) to the 
 
 ### Accuracy Tests
 
+We use SIFT10k to evaluate the different indexes, scoring them with Recall@1:
+
+| Index | Recall@1 |
+| ----- | -------- |
+| `FullNNIndex` | 0.98   |
+| `HNSWIndex`  | -   |

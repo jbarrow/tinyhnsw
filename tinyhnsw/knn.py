@@ -14,7 +14,7 @@ class FullNNIndex(Index):
 
     def __init__(self, d: int) -> None:
         super().__init__(d)
-        self.is_trained = True
+        self.is_trained = False
         self.vectors = None
 
     def add(self, vectors: numpy.ndarray) -> None:
@@ -22,6 +22,7 @@ class FullNNIndex(Index):
 
         if self.vectors is None:
             self.vectors = vectors
+            self.is_trained = True
         else:
             self.vectors = numpy.append(self.vectors, vectors, axis=0)
 
@@ -30,6 +31,9 @@ class FullNNIndex(Index):
     def search(
         self, query: numpy.ndarray, k: int
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
+        if not self.is_trained:
+            return ([[]], [[]])
+        
         similarity = cosine_similarity(self.vectors, query)
         indices = (-similarity).argsort(axis=0)[:k, :].T
         scores = numpy.array(

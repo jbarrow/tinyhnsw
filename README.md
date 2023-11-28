@@ -61,6 +61,22 @@ print(index.ntotal)
 # => 100
 ```
 
+#### HNSW Visualizations
+
+You can also visualize each layer of the HNSW graph using the following code:
+
+```
+from tinyhnsw.hnsw import visualize_hnsw_index
+
+# ... set up index here
+
+visualize_hnsw_index(index)
+```
+
+Which will generate a representation like the following:
+
+![HNSW layers visualization](chapters/figures/visualization.png)
+
 ### Full NN Index
 
 You can evaluate the full nearest neighbors index with the following command:

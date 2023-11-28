@@ -1,5 +1,6 @@
 from __future__ import annotations
 from tinyhnsw.index import Index
+from matplotlib.patches import Rectangle
 
 import numpy
 import math
@@ -41,17 +42,15 @@ class HNSWIndex(Index):
         #         distance, point = self.search(vector, k=1)
 
         if level > self.L:
-            for i in range(self.L+1, level+1):
+            for i in range(self.L + 1, level + 1):
                 G = networkx.Graph()
                 G.add_node(self.current_ix)
                 self.entry_point = self.current_ix
-                #self.graphs.append(G)
-                self.graphs.append(networkx.complete_graph(5-i))
+                # self.graphs.append(G)
+                self.graphs.append(networkx.complete_graph(5 - i))
             self.L = level
-        
+
         self.current_ix += 1
-
-
 
     def search(
         self, query: numpy.ndarray, k: int
@@ -63,14 +62,31 @@ class HNSWIndex(Index):
 
 
 def visualize_hnsw_index(index: HNSWIndex):
-    fig, axs = plt.subplots(1, len(index.graphs), figsize=(len(index.graphs)*5, 5))
-    
+    """
+    Use this to visualize the different layers of HNSW graphs. The nodes
+    maintain consistent locations between layers, and the layers are
+    plotted next to each other.
+    """
+    _, axs = plt.subplots(1, len(index.graphs), figsize=(len(index.graphs) * 5, 5))
+
     layout = networkx.spring_layout(index.graphs[0])
     for i, graph in enumerate(index.graphs):
         graph_layout = {k: v for k, v in layout.items() if k in graph}
         networkx.draw(graph, graph_layout, ax=axs[i])
-        axs[i].set_title(f'Layer {i}')
-    
+        axs[i].set_title(f"Layer {i}")
+
+        # Add a border around each subplot
+        rect = Rectangle(
+            (0, 0),
+            1,
+            1,
+            linewidth=2,
+            edgecolor="black",
+            facecolor="none",
+            transform=axs[i].transAxes,
+        )
+        axs[i].add_patch(rect)
+
     plt.show()
 
 
@@ -80,5 +96,3 @@ if __name__ == "__main__":
     index.add(vectors)
 
     visualize_hnsw_index(index)
-
-

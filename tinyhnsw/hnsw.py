@@ -22,6 +22,7 @@ class HNSWIndex(Index):
 
         self.ef_construction = ef_construction
         self.ef_search = ef_search
+        self.vectors = None
 
         # m_L
         self.m_L = 1.0 / math.log(M)
@@ -31,18 +32,25 @@ class HNSWIndex(Index):
         self.L = -1
         self.current_ix = 0
 
-        self.temp_index = FullNNIndex(self.d)
-
     def add(self, vectors: numpy.ndarray) -> None:
+        assert vectors.shape[1] == self.d
+
+        if self.vectors is None:
+            self.vectors = vectors
+            self.is_trained = True
+        else:
+            self.vectors = numpy.append(self.vectors, vectors, axis=0)
+
+        self.ntotal = self.vectors.shape[0]
+
         for vector in vectors:
-            self.temp_index.add(numpy.expand_dims(vector, axis=0))
-            self.add_one(vector)
+            self.insert_into_graph(vector)
 
     def distance(self, q, v):
         c = cosine_similarity(numpy.expand_dims(q, axis=0), numpy.expand_dims(v, axis=0))
         return c
 
-    def add_one(self, vector: numpy.ndarray) -> None:
+    def insert_into_graph(self, vector: numpy.ndarray) -> None:
         level = self.assign_level()
 
         if level > self.L:
@@ -82,7 +90,7 @@ class HNSWIndex(Index):
                         Mmax = self.M_max0
                     else:
                         Mmax = self.M_max
-                    eNewConn = self.select_neighbors(self.temp_index.vectors[neighbor], eConn, Mmax, lc)
+                    eNewConn = self.select_neighbors(self.vectors[neighbor], eConn, Mmax, lc)
                     # Update the neighbor's connections
                     self.graphs[lc].remove_node(neighbor)
                     self.graphs[lc].add_node(neighbor)
@@ -91,7 +99,7 @@ class HNSWIndex(Index):
 
             # Update the entry point for the next lower layer
             if len(W) > 0:
-                ep = min(W, key=lambda x: self.distance(vector, self.temp_index.vectors[x]))
+                ep = min(W, key=lambda x: self.distance(vector, self.vectors[x]))
 
         self.current_ix += 1
 
@@ -100,10 +108,10 @@ class HNSWIndex(Index):
     ) -> tuple[list[float], list[int]]:
         visited = set([self.entry_point])
         candidates = {
-            self.entry_point: self.distance(vector, self.temp_index.vectors[entry_point].squeeze())
+            self.entry_point: self.distance(vector, self.vectors[entry_point].squeeze())
         }
         neighbors = {
-            self.entry_point: self.distance(vector, self.temp_index.vectors[entry_point].squeeze())
+            self.entry_point: self.distance(vector, self.vectors[entry_point].squeeze())
         }
 
         while len(candidates) > 0:
@@ -116,7 +124,7 @@ class HNSWIndex(Index):
             for e in self.graphs[layer][c]:
                 if e not in visited:
                     visited.add(e)
-                    e_distance = self.distance(vector, self.temp_index.vectors[e])
+                    e_distance = self.distance(vector, self.vectors[e])
 
                     f, f_distance = max(neighbors.items(), key=lambda x: x[1])
                     if e_distance < f_distance or len(neighbors) < ef:
@@ -152,11 +160,11 @@ class HNSWIndex(Index):
         W_d = set()
 
         while len(W) > 0 and len(R) < M:
-            e = min(W, key=lambda x: self.distance(q, self.temp_index.vectors[x]))
+            e = min(W, key=lambda x: self.distance(q, self.vectors[x]))
             W.remove(e)
 
-            if len(R) == 0 or self.distance(q, self.temp_index.vectors[e]) < max(
-                [self.distance(q, self.temp_index.vectors[r]) for r in R]
+            if len(R) == 0 or self.distance(q, self.vectors[e]) < max(
+                [self.distance(q, self.vectors[r]) for r in R]
             ):
                 R.add(e)
             else:
@@ -164,7 +172,7 @@ class HNSWIndex(Index):
 
         if keepPrunedConnections:
             while len(W_d) > 0 and len(R) < M:
-                e = min(W_d, key=lambda x: self.distance(q, self.temp_index.vectors[x]))
+                e = min(W_d, key=lambda x: self.distance(q, self.vectors[x]))
                 W_d.remove(e)
                 R.add(e)
 

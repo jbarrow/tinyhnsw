@@ -45,10 +45,9 @@ class HNSWIndex(Index):
             for i in range(self.L + 1, level):
                 G = networkx.Graph()
                 G.add_node(self.current_ix)
-                self.entry_point = self.current_ix
                 self.graphs.append(G)
 
-        for i in range(min(level, self.L) + 1):
+        for i in range(min(level, self.L)):
             self.graphs[i].add_node(self.current_ix)
             self.set_edges(self.current_ix, vector, i)
             neighbors = list(self.graphs[i][self.current_ix])
@@ -56,8 +55,11 @@ class HNSWIndex(Index):
             for neighbor in neighbors:
                 if len(self.graphs[i][neighbor]) > self.M_max:
                     self.set_edges(neighbor, self.temp_index.vectors[neighbor], i)
+        
+        if level > self.L:
+            self.entry_point = self.current_ix
+            self.L = level
 
-        self.L = level
         self.current_ix += 1
 
     def set_edges(self, node, vector, layer):
@@ -65,8 +67,11 @@ class HNSWIndex(Index):
         self.graphs[layer].remove_node(node)
         self.graphs[layer].add_node(node)
 
-        _, neighbors = self.search(numpy.expand_dims(vector, axis=0), k=self.M)
-        self.graphs[layer].add_edges_from([(self.current_ix, n) for n in neighbors[0]])
+        distance, neighbors = self.search(numpy.expand_dims(vector, axis=0), k=self.M)
+        for d, n in zip(distance[0], neighbors[0]):
+            if n == node:
+                continue
+            self.graphs[layer].add_edge(node, n, weight=d)
 
     def search(
         self, query: numpy.ndarray, k: int
@@ -74,9 +79,19 @@ class HNSWIndex(Index):
         return self.temp_index.search(query, k)
 
     def assign_level(self) -> int:
-        level = min(3, math.floor(-math.log(random.random()) * self.m_L))
-        print(level)
-        return level
+        return math.floor(-math.log(random.random()) * self.m_L)
+
+    def search_layer(
+        self, vector: numpy.ndarray, entry_point: int, layer: int, k: int = 1
+    ) -> tuple[list[float], list[int]]:
+        visited = set([entry_point])
+        candidates = set([entry_point])
+        neighbors = set([entry_point])
+
+        while len(candidates) > 0:
+            pass
+
+        return neighbors
 
 
 def visualize_hnsw_index(index: HNSWIndex):
@@ -88,10 +103,12 @@ def visualize_hnsw_index(index: HNSWIndex):
     _, axs = plt.subplots(1, len(index.graphs), figsize=(len(index.graphs) * 5, 5))
 
     layout = networkx.spring_layout(index.graphs[0])
+    node_color = ['r' if index.entry_point == node else 'c' for node, _ in layout.items()]
 
     for i, graph in enumerate(index.graphs):
         graph_layout = {k: v for k, v in layout.items() if k in graph}
-        networkx.draw(graph, graph_layout, ax=axs[i])
+        graph_node_color = [node_color[k] for k, _ in graph_layout.items()]
+        networkx.draw(graph, graph_layout, ax=axs[i], node_size=25, node_color=graph_node_color)
         axs[i].set_title(f"Layer {i}")
 
         # Add a border around each subplot

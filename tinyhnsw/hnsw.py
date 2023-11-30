@@ -70,7 +70,7 @@ class HNSWIndex(Index):
         if l > self.L:
             for l_new in range(L + 1, l + 1):
                 self.layers.append(HNSWLayer(self, l_new, self.ix))
-            self.L = L
+            self.L = l
             self.ep = ix
 
         self.ix += 1
@@ -101,7 +101,8 @@ class HNSWLayer:
 
     def distance_to_node(self, q: numpy.ndarray, e: int) -> float:
         v = self.index.vectors[e]
-        return self.index.distance(q, v)[0]
+        d = self.index.distance(q, v)[0][0]
+        return d
 
     def search(
         self, q: numpy.ndarray, ep: int, ef: int
@@ -140,17 +141,21 @@ class HNSWLayer:
             return
         
         D, W = self.search(q, ep, self.config.ef_construction)
-        neighbors = self.select_neighbors(q, D, W)
-        self.G.add_edges_from([(e, node) for e in neighbors])
+        neighbors = self.select_neighbors(q, D, W, self.config.M)
+        self.G.add_edges_from([(e, node, { 'distance': float(d) }) for d, e in neighbors])
 
-        # for e in neighbors:
-        #     if len(self.G[e]) > self.M_max:
-        #         eConn = self.select_neighbors()
+        for d, e in neighbors:
+            if len(self.G[e]) > self.M_max:
+                D, W = list(zip(*[(self.G[e][n]['distance'], n) for n in self.G[e]]))
+                new_conn = self.select_neighbors(self.index.vectors[e], D, W, self.M_max)
+                self.G.remove_edges_from([(e, e_n) for e_n in self.G[e]])
+                self.G.add_edges_from([(e, e_n, {'distance': d_n}) for d_n, e_n in new_conn])
 
     def select_neighbors(
-        self, q: numpy.ndarray, D: list[float], W: list[int]
-    ) -> list[int]:
-        return W[: self.config.M]
+        self, q: numpy.ndarray, D: list[float], W: list[int], M: int
+    ) -> tuple[list[float], list[int]]:
+        return nlargest(M, zip(D, W), key=lambda x: x[0])
+
 
 
 def visualize_hnsw_index(index: HNSWIndex):
@@ -173,14 +178,14 @@ def visualize_hnsw_index(index: HNSWIndex):
         networkx.draw(
             graph, graph_layout, ax=axs[i], node_size=25, node_color=graph_node_color
         )
-        # axs[i].set_title(f"Layer {i}")
+        axs[i].set_title(f"Layer {i}")
 
     plt.show()
 
 
 if __name__ == "__main__":
     index = HNSWIndex(2)
-    vectors = numpy.random.randn(10, 2)
+    vectors = numpy.random.randn(100, 2)
     index.add(vectors)
 
     visualize_hnsw_index(index)

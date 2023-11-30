@@ -169,12 +169,12 @@ Which will download the [SIFT10K dataset](http://corpus-texmex.irisa.fr) to the 
 
 ### Accuracy Tests
 
-We use SIFT10k to evaluate the different indexes, scoring them with Recall@1:
+We use SIFT10k to evaluate the different indexes, scoring them with Recall@1 (on my machine, with a random seed):
 
 | Index | Recall@1 |
 | ----- | -------- |
 | `FullNNIndex` | 0.98   |
-| `HNSWIndex`  | 0.25  |
+| `HNSWIndex`  | 0.63  |
 
 Admittedly, the `HNSWIndex` performance isn't great.
 But I can definitely debug and improve it.

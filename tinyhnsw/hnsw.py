@@ -13,6 +13,9 @@ import networkx
 import matplotlib.pyplot as plt
 
 
+random.seed(1337)
+
+
 @dataclass
 class HNSWConfig:
     M: int
@@ -150,14 +153,14 @@ class HNSWLayer:
             return
 
         D, W = self.search(q, ep, self.config.ef_construction)
-        neighbors = self.select_neighbors(q, D, W, self.config.M)
+        neighbors = self.select_neighbors(D, W, self.config.M)
         self.G.add_edges_from([(e, node, {"distance": float(d)}) for d, e in neighbors])
 
         for d, e in neighbors:
             if len(self.G[e]) > self.M_max:
                 D, W = list(zip(*[(self.G[e][n]["distance"], n) for n in self.G[e]]))
                 new_conn = self.select_neighbors(
-                    self.index.vectors[e], D, W, self.M_max
+                    D, W, self.M_max
                 )
                 self.G.remove_edges_from([(e, e_n) for e_n in self.G[e]])
                 self.G.add_edges_from(
@@ -165,9 +168,12 @@ class HNSWLayer:
                 )
 
     def select_neighbors(
-        self, q: numpy.ndarray, D: list[float], W: list[int], M: int
+        self, D: list[float], W: list[int], M: int
     ) -> list[tuple[float, int]]:
-        return nlargest(M, zip(D, W), key=lambda x: x[0])
+        """
+        Uses the "simple" way to select neighbors.
+        """
+        return nsmallest(M, zip(D, W), key=lambda x: x[0])
 
 
 def visualize_hnsw_index(index: HNSWIndex):
@@ -205,7 +211,7 @@ if __name__ == "__main__":
 
     # visualize_hnsw_index(index)
     config = HNSWConfig(
-        M=48, M_max=48, M_max0=96, m_L=(1.0 / math.log(40)), ef_construction=64
+        M=16, M_max=16, M_max0=32, m_L=(1.0 / math.log(16)), ef_construction=64
     )
 
     data, queries, labels = load_sift()

@@ -16,16 +16,13 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 7. [ ] [Limitations](chapters/6_limitations.md)
 8. [ ] [Filtering and Hybrid Search](chapters/7_filtering.md)
 
-## Code Completeness
+## Code
 
-1. [x] Introduction
-2. [x] Nearest Neighbor Search
-3. [ ] An Overview of HNSW
-4. [x] Skip Lists
-5. [x] Navigable Small Worlds
-6. [x] HNSW
-7. [ ] Limitations
-8. [ ] Filtering and Hybrid Search
+1. [x] [Nearest Neighbor Search](tinyhnsw/knn.py)
+2. [x] [Skip Lists](tinyhnsw/teaching/skip_list.py)
+3. [x] [Navigable Small Worlds](tinyhnsw/teaching/nsw.py)
+4. [x] [HNSW](tinyhnsw/hnsw.py)
+5. [x] [Filtering and Hybrid Search](tinyhnsw/filter.py)
 
 # Library Usage
 

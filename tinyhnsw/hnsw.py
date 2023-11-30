@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     # visualize_hnsw_index(index)
     config = HNSWConfig(
-        M=40, M_max=40, M_max0=40, m_L=(1.0 / math.log(40)), ef_construction=64
+        M=48, M_max=48, M_max0=96, m_L=(1.0 / math.log(40)), ef_construction=64
     )
 
     data, queries, labels = load_sift()

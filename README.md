@@ -164,6 +164,8 @@ python tinyhnsw/utils.py
 
 Which will download the [SIFT10K dataset](http://corpus-texmex.irisa.fr) to the `data/` folder.
 
+On my machine, index creation for 10k vectors to get to 100% recall takes `22 seconds`.
+
 ### Accuracy Tests
 
 We use SIFT10k to evaluate the different indexes, scoring them with Recall@1 (on my machine, with a random seed):
@@ -172,7 +174,4 @@ We use SIFT10k to evaluate the different indexes, scoring them with Recall@1 (on
 | ----- | -------- |
 | `FullNNIndex` | 1.00  |
 | `HNSWIndex (simple)`  | 1.00  |
-| `HNSWIndex (heuristic)` | 1.00 | 
-
-Admittedly, the `HNSWIndex` performance isn't great.
-But I can definitely debug and improve it.
+| `HNSWIndex (heuristic)` | 1.00 |

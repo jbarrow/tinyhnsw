@@ -160,13 +160,13 @@ class HNSWLayer:
             return
 
         D, W = self.search(q, ep, self.config.ef_construction)
-        neighbors = self.select_neighbors_heuristic(D, W, self.config.M)
+        neighbors = self.select_neighbors(D, W, self.config.M)
         self.G.add_edges_from([(e, node, {"distance": float(d)}) for d, e in neighbors])
 
         for d, e in neighbors:
             if len(self.G[e]) > self.M_max:
                 D, W = list(zip(*[(self.G[e][n]["distance"], n) for n in self.G[e]]))
-                new_conn = self.select_neighbors_heuristic(D, W, self.M_max)
+                new_conn = self.select_neighbors(D, W, self.M_max)
                 self.G.remove_edges_from([(e, e_n) for e_n in self.G[e]])
                 self.G.add_edges_from(
                     [(e, e_n, {"distance": d_n}) for d_n, e_n in new_conn]
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
     # visualize_hnsw_index(index)
     config = HNSWConfig(
-        M=16, M_max=16, M_max0=32, m_L=(1.0 / math.log(16)), ef_construction=64, ef_search=32
+        M=16, M_max=16, M_max0=32, m_L=(1.0 / math.log(16)), ef_construction=32, ef_search=32
     )
 
     data, queries, labels = load_sift()

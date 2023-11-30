@@ -23,12 +23,15 @@ class HNSWConfig:
     M_max0: int
     m_L: float
     ef_construction: int
+    ef_search: int
+
+    neighbors: str = 'simple'
     extend_candidates: bool = False
     keep_pruned_connections: bool = True
 
 
 DEFAULT_CONFIG = HNSWConfig(
-    M=3, M_max=3, M_max0=6, m_L=(1.0 / math.log(3)), ef_construction=32
+    M=3, M_max=3, M_max0=6, m_L=(1.0 / math.log(3)), ef_construction=32, ef_search=32
 )
 
 
@@ -90,10 +93,13 @@ class HNSWIndex(Index):
 
     def search(self, q: numpy.ndarray, k: int) -> tuple[numpy.ndarray, numpy.ndarray]:
         ep = self.ep
+        ef = max(k, self.config.ef_search)
         for lc in range(self.L, 0, -1):
             ep = self.layers[lc].search(q, ep, 1)[1][0]
 
-        return self.layers[0].search(q, ep, k)
+        W = list(zip(*self.layers[0].search(q, ep, ef)))
+        neighbors = nsmallest(k, W, lambda x: x[0])
+        return list(zip(*neighbors))
 
 
 class HNSWLayer:
@@ -239,7 +245,7 @@ if __name__ == "__main__":
 
     # visualize_hnsw_index(index)
     config = HNSWConfig(
-        M=16, M_max=16, M_max0=32, m_L=(1.0 / math.log(16)), ef_construction=64
+        M=16, M_max=16, M_max0=32, m_L=(1.0 / math.log(16)), ef_construction=64, ef_search=32
     )
 
     data, queries, labels = load_sift()

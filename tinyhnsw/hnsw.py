@@ -1,8 +1,10 @@
 from __future__ import annotations
 from tinyhnsw.index import Index
 from tinyhnsw.knn import cosine_similarity
+from tinyhnsw.utils import load_sift, evaluate
 from dataclasses import dataclass
 from heapq import nlargest, nsmallest, heappop, heappush
+from tqdm import tqdm
 
 import numpy
 import math
@@ -51,7 +53,7 @@ class HNSWIndex(Index):
 
         self.ntotal = self.vectors.shape[0]
 
-        for vector in vectors:
+        for vector in tqdm(vectors):
             self.insert_into_graph(vector)
 
     def insert_into_graph(self, q: numpy.ndarray):
@@ -82,13 +84,13 @@ class HNSWIndex(Index):
         if len(v.shape) == 1:
             v = numpy.expand_dims(v, axis=0)
 
-        return 1. - cosine_similarity(q, v)
+        return 1.0 - cosine_similarity(q, v)
 
     def search(self, q: numpy.ndarray, k: int) -> tuple[numpy.ndarray, numpy.ndarray]:
         ep = self.ep
         for lc in range(self.L, 0, -1):
             ep = self.layers[lc].search(q, ep, 1)[1][0]
-        
+
         return self.layers[0].search(q, ep, k)
 
 
@@ -194,11 +196,27 @@ def visualize_hnsw_index(index: HNSWIndex):
 
 
 if __name__ == "__main__":
-    index = HNSWIndex(2)
-    vectors = numpy.random.randn(10, 2)
-    index.add(vectors)
+    # index = HNSWIndex(2)
+    # vectors = numpy.random.randn(10, 2)
+    # index.add(vectors)
 
-    for ix, v in enumerate(vectors):
-        print(ix, index.search(v, 1))
+    # for ix, v in enumerate(vectors):
+    #     print(ix, index.search(v, 1))
 
     # visualize_hnsw_index(index)
+    config = HNSWConfig(
+        M=40, M_max=40, M_max0=40, m_L=(1.0 / math.log(40)), ef_construction=64
+    )
+
+    data, queries, labels = load_sift()
+
+    index = HNSWIndex(128, config=config)
+    index.add(data)
+
+    I = []
+    for q in queries:
+        D_q, I_q = index.search(q, k=1)
+        I.append(I_q[0])
+
+
+    print(f"Recall@1: {evaluate(labels, I)}")

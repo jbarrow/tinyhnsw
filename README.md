@@ -22,8 +22,8 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 2. [x] Nearest Neighbor Search
 3. [ ] An Overview of HNSW
 4. [x] Skip Lists
-5. [ ] Navigable Small Worlds
-6. [ ] HNSW
+5. [x] Navigable Small Worlds
+6. [x] HNSW
 7. [ ] Limitations
 8. [ ] Filtering and Hybrid Search
 
@@ -174,4 +174,7 @@ We use SIFT10k to evaluate the different indexes, scoring them with Recall@1:
 | Index | Recall@1 |
 | ----- | -------- |
 | `FullNNIndex` | 0.98   |
-| `HNSWIndex`  | -   |
+| `HNSWIndex`  | 0.25  |
+
+Admittedly, the `HNSWIndex` performance isn't great.
+But I can definitely debug and improve it.

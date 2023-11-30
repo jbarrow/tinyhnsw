@@ -4,15 +4,22 @@ import numpy
 
 
 class Index:
-    is_trained: bool
-    ntotal: int
-
     def __init__(self, d: int) -> None:
         self.ntotal = 0
+        self.vectors = None
+        self.is_trained = False
         self.d = d
 
     def add(self, vectors: numpy.ndarray) -> None:
-        raise NotImplementedError()
+        assert vectors.shape[1] == self.d
+
+        if self.vectors is None:
+            self.vectors = vectors
+            self.is_trained = True
+        else:
+            self.vectors = numpy.append(self.vectors, vectors, axis=0)
+
+        self.ntotal = self.vectors.shape[0]
 
     def search(
         self, query: numpy.ndarray, k: int

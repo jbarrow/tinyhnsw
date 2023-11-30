@@ -46,15 +46,7 @@ class HNSWIndex(Index):
         return math.floor(-math.log(random.random()) * self.config.m_L)
 
     def add(self, vectors: numpy.ndarray) -> None:
-        assert vectors.shape[1] == self.d
-
-        if self.vectors is None:
-            self.vectors = vectors
-            self.is_trained = True
-        else:
-            self.vectors = numpy.append(self.vectors, vectors, axis=0)
-
-        self.ntotal = self.vectors.shape[0]
+        super().add(vectors)
 
         for vector in tqdm(vectors):
             self.insert_into_graph(vector)
@@ -159,9 +151,7 @@ class HNSWLayer:
         for d, e in neighbors:
             if len(self.G[e]) > self.M_max:
                 D, W = list(zip(*[(self.G[e][n]["distance"], n) for n in self.G[e]]))
-                new_conn = self.select_neighbors(
-                    D, W, self.M_max
-                )
+                new_conn = self.select_neighbors(D, W, self.M_max)
                 self.G.remove_edges_from([(e, e_n) for e_n in self.G[e]])
                 self.G.add_edges_from(
                     [(e, e_n, {"distance": d_n}) for d_n, e_n in new_conn]
@@ -223,6 +213,5 @@ if __name__ == "__main__":
     for q in queries:
         D_q, I_q = index.search(q, k=1)
         I.append(I_q[0])
-
 
     print(f"Recall@1: {evaluate(labels, I)}")

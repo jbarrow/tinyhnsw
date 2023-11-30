@@ -3,10 +3,11 @@ import numpy as np
 from tinyhnsw.utils import evaluate, load_sift
 from tinyhnsw.knn import cosine_similarity
 
+
 class NSWIndex:
     def __init__(self):
         self.graph = {}  # Dictionary to store the graph
-        self.data = []   # List to store the actual data items
+        self.data = []  # List to store the actual data items
 
     def add_item(self, item, f=10, w=5):
         # Add item to data list
@@ -40,7 +41,18 @@ class NSWIndex:
                 c = min(candidates, key=lambda x: self.distance(query, self.data[x]))
                 candidates.remove(c)
 
-                if c in visited_set or (result and self.distance(query, self.data[c]) > self.distance(query, self.data[max(result, key=lambda x: self.distance(query, self.data[x]))])):
+                if c in visited_set or (
+                    result
+                    and self.distance(query, self.data[c])
+                    > self.distance(
+                        query,
+                        self.data[
+                            max(
+                                result, key=lambda x: self.distance(query, self.data[x])
+                            )
+                        ],
+                    )
+                ):
                     break
 
                 visited_set.add(c)
@@ -78,7 +90,9 @@ class NSWIndex:
 
     def get_random_entry_point(self):
         import random
+
         return random.choice(list(self.graph.keys())) if self.graph else None
+
 
 # Test the NSWIndex with some data
 index = NSWIndex()

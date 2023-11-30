@@ -29,6 +29,7 @@ class FilterableHNSWLayer(HNSWLayer):
 
         v = {ep}
         C = [(ep_dist, ep)]
+        # todo(joe): current bug is that if ep isn't in the valid set, it's still counted
         W = [(ep_dist, ep)]
 
         while len(C) > 0:
@@ -39,17 +40,19 @@ class FilterableHNSWLayer(HNSWLayer):
                 break
 
             for e in self.G[c]:
-                if e not in v:
-                    v.add(e)
-                    d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
-                    d_e = self.distance_to_node(q, e)
+                if e in v:
+                    continue
 
-                    if d_e < d_f or len(W) < ef:
-                        heappush(C, (d_e, e))
-                        if valid is None or e in valid:
-                            heappush(W, (d_e, e))
-                            if len(W) > ef:
-                                W = nsmallest(ef, W, key=lambda x: x[0])
+                v.add(e)
+                d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
+                d_e = self.distance_to_node(q, e)
+
+                if d_e < d_f or len(W) < ef:
+                    heappush(C, (d_e, e))
+                    if valid is None or e in valid:
+                        heappush(W, (d_e, e))
+                        if len(W) > ef:
+                            W = nsmallest(ef, W, key=lambda x: x[0])
 
         return tuple(zip(*W))
 

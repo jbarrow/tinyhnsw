@@ -75,14 +75,21 @@ class HNSWIndex(Index):
 
         self.ix += 1
 
-    def distance(self, q, v):
+    def distance(self, q: numpy.ndarray, v: numpy.ndarray) -> numpy.ndarray:
         if len(q.shape) == 1:
             q = numpy.expand_dims(q, axis=0)
 
         if len(v.shape) == 1:
             v = numpy.expand_dims(v, axis=0)
 
-        return cosine_similarity(q, v)
+        return 1. - cosine_similarity(q, v)
+
+    def search(self, q: numpy.ndarray, k: int) -> tuple[numpy.ndarray, numpy.ndarray]:
+        ep = self.ep
+        for lc in range(self.L, 0, -1):
+            ep = self.layers[lc].search(q, ep, 1)[1][0]
+        
+        return self.layers[0].search(q, ep, k)
 
 
 class HNSWLayer:
@@ -133,29 +140,32 @@ class HNSWLayer:
                         if len(W) > ef:
                             W = nsmallest(ef, W, key=lambda x: x[0])
 
-        return zip(*W)
+        return tuple(zip(*W))
 
     def insert(self, q: numpy.ndarray, node: int, ep: int) -> None:
         if len(self.G) == 0:
             self.G.add_node(node)
             return
-        
+
         D, W = self.search(q, ep, self.config.ef_construction)
         neighbors = self.select_neighbors(q, D, W, self.config.M)
-        self.G.add_edges_from([(e, node, { 'distance': float(d) }) for d, e in neighbors])
+        self.G.add_edges_from([(e, node, {"distance": float(d)}) for d, e in neighbors])
 
         for d, e in neighbors:
             if len(self.G[e]) > self.M_max:
-                D, W = list(zip(*[(self.G[e][n]['distance'], n) for n in self.G[e]]))
-                new_conn = self.select_neighbors(self.index.vectors[e], D, W, self.M_max)
+                D, W = list(zip(*[(self.G[e][n]["distance"], n) for n in self.G[e]]))
+                new_conn = self.select_neighbors(
+                    self.index.vectors[e], D, W, self.M_max
+                )
                 self.G.remove_edges_from([(e, e_n) for e_n in self.G[e]])
-                self.G.add_edges_from([(e, e_n, {'distance': d_n}) for d_n, e_n in new_conn])
+                self.G.add_edges_from(
+                    [(e, e_n, {"distance": d_n}) for d_n, e_n in new_conn]
+                )
 
     def select_neighbors(
         self, q: numpy.ndarray, D: list[float], W: list[int], M: int
-    ) -> tuple[list[float], list[int]]:
+    ) -> list[tuple[float, int]]:
         return nlargest(M, zip(D, W), key=lambda x: x[0])
-
 
 
 def visualize_hnsw_index(index: HNSWIndex):
@@ -185,7 +195,10 @@ def visualize_hnsw_index(index: HNSWIndex):
 
 if __name__ == "__main__":
     index = HNSWIndex(2)
-    vectors = numpy.random.randn(100, 2)
+    vectors = numpy.random.randn(10, 2)
     index.add(vectors)
 
-    visualize_hnsw_index(index)
+    for ix, v in enumerate(vectors):
+        print(ix, index.search(v, 1))
+
+    # visualize_hnsw_index(index)

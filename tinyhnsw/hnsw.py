@@ -3,7 +3,7 @@ from tinyhnsw.index import Index
 from tinyhnsw.knn import cosine_similarity
 from tinyhnsw.utils import load_sift, evaluate
 from dataclasses import dataclass
-from heapq import nlargest, nsmallest, heappop, heappush
+from heapq import nlargest, nsmallest, heappop, heappush, heapify
 from tqdm import tqdm
 
 import numpy
@@ -23,6 +23,8 @@ class HNSWConfig:
     M_max0: int
     m_L: float
     ef_construction: int
+    extend_candidates: bool = False
+    keep_pruned_connections: bool = True
 
 
 DEFAULT_CONFIG = HNSWConfig(
@@ -40,9 +42,9 @@ class HNSWIndex(Index):
         self.ep = 0
         self.L = 0
         self.ix = 0
-        self.layers = [self.layer_factory(0)]
+        self.layers = [self.layer_factory(0, self.ep)]
 
-    def layer_factory(self, lc: int, ep: int | None) -> HNSWLayer:
+    def layer_factory(self, lc: int, ep: int | None = None) -> HNSWLayer:
         ep = ep or self.ep
         return HNSWLayer(self, lc, ep)
 
@@ -129,17 +131,19 @@ class HNSWLayer:
                 break
 
             for e in self.G[c]:
-                if e not in v:
-                    v.add(e)
-                    d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
-                    d_e = self.distance_to_node(q, e)
+                if e in v:
+                    continue
 
-                    if d_e < d_f or len(W) < ef:
-                        heappush(C, (d_e, e))
-                        heappush(W, (d_e, e))
+                v.add(e)
+                d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
+                d_e = self.distance_to_node(q, e)
 
-                        if len(W) > ef:
-                            W = nsmallest(ef, W, key=lambda x: x[0])
+                if d_e < d_f or len(W) < ef:
+                    heappush(C, (d_e, e))
+                    heappush(W, (d_e, e))
+
+                    if len(W) > ef:
+                        W = nsmallest(ef, W, key=lambda x: x[0])
 
         return tuple(zip(*W))
 
@@ -149,13 +153,13 @@ class HNSWLayer:
             return
 
         D, W = self.search(q, ep, self.config.ef_construction)
-        neighbors = self.select_neighbors(D, W, self.config.M)
+        neighbors = self.select_neighbors_heuristic(D, W, self.config.M)
         self.G.add_edges_from([(e, node, {"distance": float(d)}) for d, e in neighbors])
 
         for d, e in neighbors:
             if len(self.G[e]) > self.M_max:
                 D, W = list(zip(*[(self.G[e][n]["distance"], n) for n in self.G[e]]))
-                new_conn = self.select_neighbors(D, W, self.M_max)
+                new_conn = self.select_neighbors_heuristic(D, W, self.M_max)
                 self.G.remove_edges_from([(e, e_n) for e_n in self.G[e]])
                 self.G.add_edges_from(
                     [(e, e_n, {"distance": d_n}) for d_n, e_n in new_conn]
@@ -172,7 +176,31 @@ class HNSWLayer:
     def select_neighbors_heuristic(
         self, D: list[float], W: list[int], M: int
     ) -> list[tuple[float, int]]:
-        pass
+        """
+        The "heuristic" method of selecting neighbors, which works
+        better for clustered data.
+        """
+        R = []
+        W_d = []
+        # ensure we don't clobber the pointer
+        h = list(zip(D, W))
+        heapify(h)
+
+        while len(h) > 0 and len(R) < M:
+            d_e, e = heappop(h)
+
+            if len(R) == 0 or (
+                d_e
+                < min([self.distance_to_node(self.index.vectors[e], n) for _, n in R])
+            ):
+                R.append((d_e, e))
+            else:
+                W_d.append((d_e, e))
+
+        if self.config.keep_pruned_connections and len(R) < M:
+            R.extend(nsmallest(M - len(R), W_d, key=lambda x: x[0]))
+
+        return nsmallest(M, R, key=lambda x: x[0])
 
 
 def visualize_hnsw_index(index: HNSWIndex):

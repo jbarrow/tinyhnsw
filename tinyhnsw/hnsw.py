@@ -1,6 +1,6 @@
 from __future__ import annotations
 from tinyhnsw.index import Index
-from tinyhnsw.knn import cosine_similarity
+from tinyhnsw.knn import cosine_similarity, l2_distance
 from tinyhnsw.utils import load_sift, evaluate
 from dataclasses import dataclass
 from heapq import nlargest, nsmallest, heappop, heappush, heapify
@@ -85,7 +85,8 @@ class HNSWIndex(Index):
         if len(v.shape) == 1:
             v = numpy.expand_dims(v, axis=0)
 
-        return 1.0 - cosine_similarity(q, v)
+        # return 1.0 - cosine_similarity(q, v)
+        return l2_distance(q, v)
 
     def search(self, q: numpy.ndarray, k: int) -> tuple[numpy.ndarray, numpy.ndarray]:
         ep = self.ep
@@ -111,7 +112,7 @@ class HNSWLayer:
 
     def distance_to_node(self, q: numpy.ndarray, e: int) -> float:
         v = self.index.vectors[e]
-        d = self.index.distance(q, v)[0][0]
+        d = self.index.distance(q, v)[0]
         return d
 
     def search(

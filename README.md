@@ -170,9 +170,9 @@ We use SIFT10k to evaluate the different indexes, scoring them with Recall@1 (on
 
 | Index | Recall@1 |
 | ----- | -------- |
-| `FullNNIndex` | 0.98   |
-| `HNSWIndex (simple)`  | 0.63  |
-| `HNSWIndex (heuristic)` | 0.73 | 
+| `FullNNIndex` | 1.00  |
+| `HNSWIndex (simple)`  | 0.65  |
+| `HNSWIndex (heuristic)` | 0.72 | 
 
 Admittedly, the `HNSWIndex` performance isn't great.
 But I can definitely debug and improve it.

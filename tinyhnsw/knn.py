@@ -21,10 +21,12 @@ class FullNNIndex(Index):
         if not self.is_trained:
             return ([[]], [[]])
 
-        similarity = cosine_similarity(self.vectors, query)
-        indices = (-similarity).argsort(axis=0)[:k, :].T
+        # similarity = cosine_similarity(self.vectors, query)
+        similarity = l2_distance(self.vectors, query)
+        # indices = (-similarity).argsort(axis=0)[:k, :].T
+        indices = similarity.argsort(axis=0)[:k].T
         scores = numpy.array(
-            [similarity[indices[i, :], i] for i in range(len(indices))]
+            [similarity[indices[i]] for i in range(len(indices))]
         )
 
         return scores, indices
@@ -41,12 +43,20 @@ def cosine_similarity(X: numpy.ndarray, Y: numpy.ndarray) -> numpy.ndarray:
     return numpy.dot(X, Y.T)
 
 
+def l2_distance(X: numpy.ndarray, Y: numpy.ndarray) -> numpy.ndarray:
+    return numpy.linalg.norm(X - Y, axis=1)
+
+
 if __name__ == "__main__":
     data, queries, labels = load_sift()
 
     index = FullNNIndex(128)
     index.add(data)
 
-    D, I = index.search(queries, k=10)
+    I = []
+    for q in queries:
+        q = numpy.expand_dims(q, axis=0)
+        D_q, I_q = index.search(q, k=1)
+        I.append(I_q[0])
 
-    print(f"Recall@1: {evaluate(labels, I[:, 0])}")
+    print(f"Recall@1: {evaluate(labels, numpy.array(I))}")

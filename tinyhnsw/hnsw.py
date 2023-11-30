@@ -37,10 +37,14 @@ class HNSWIndex(Index):
         self.config = config
         self.vectors = None
 
-        self.layers = [HNSWLayer(self, 0)]
         self.ep = 0
         self.L = 0
         self.ix = 0
+        self.layers = [self.layer_factory(0)]
+
+    def layer_factory(self, lc: int, ep: int | None) -> HNSWLayer:
+        ep = ep or self.ep
+        return HNSWLayer(self, lc, ep)
 
     def assign_level(self) -> int:
         return math.floor(-math.log(random.random()) * self.config.m_L)
@@ -66,7 +70,7 @@ class HNSWIndex(Index):
 
         if l > self.L:
             for l_new in range(L + 1, l + 1):
-                self.layers.append(HNSWLayer(self, l_new, self.ix))
+                self.layers.append(self.layer_factory(l_new, self.ix))
             self.L = l
             self.ep = ix
 
@@ -164,6 +168,11 @@ class HNSWLayer:
         Uses the "simple" way to select neighbors.
         """
         return nsmallest(M, zip(D, W), key=lambda x: x[0])
+
+    def select_neighbors_heuristic(
+        self, D: list[float], W: list[int], M: int
+    ) -> list[tuple[float, int]]:
+        pass
 
 
 def visualize_hnsw_index(index: HNSWIndex):

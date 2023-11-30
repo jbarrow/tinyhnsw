@@ -25,3 +25,10 @@ class Index:
         self, query: numpy.ndarray, k: int
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
         raise NotImplementedError()
+    
+    def save(self, file: str) -> None:
+        pass
+
+    @classmethod
+    def from_file(cls, file: str) -> Index:
+        pass

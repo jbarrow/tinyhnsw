@@ -1,4 +1,4 @@
-from tinyhnsw.skip_list import SkipList
+from tinyhnsw.teaching.skip_list import SkipList
 
 
 def test_random_level():

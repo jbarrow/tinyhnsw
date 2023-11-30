@@ -29,25 +29,27 @@ class FilterableHNSWLayer(HNSWLayer):
 
         v = {ep}
         C = [(ep_dist, ep)]
-        # todo(joe): current bug is that if ep isn't in the valid set, it's still counted
-        W = [(ep_dist, ep)]
+        # this addresses the issue of not considering the ep if it's not a valid node:
+        W = [] if (valid and ep not in valid) else [(ep_dist, ep)]
 
         while len(C) > 0:
             d_c, c = heappop(C)
-            d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
+            if len(W) > 0:
+                d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
 
-            if d_c > d_f:
-                break
+                if d_c > d_f:
+                    break
 
             for e in self.G[c]:
                 if e in v:
                     continue
 
                 v.add(e)
-                d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
+                if len(W) > 0:
+                    d_f, f = nlargest(1, W, key=lambda x: x[0])[0]
                 d_e = self.distance_to_node(q, e)
 
-                if d_e < d_f or len(W) < ef:
+                if len(W) == 0 or d_e < d_f or len(W) < ef:
                     heappush(C, (d_e, e))
                     if valid is None or e in valid:
                         heappush(W, (d_e, e))

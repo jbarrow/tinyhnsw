@@ -138,6 +138,11 @@ s.tolist()
 📝 The second part of understanding how HNSW works is understanding how NSWs work.
 Again, we provide a teaching implementation in this repo, but it's not meant for much more than teaching.
 
+## Proofs of Concept with CLIP and Sentence Transformers
+
+![Searching for "animated scene"](examples/multimodal_retrieval/tmdb_animated_scene.png)
+![Searching for "landscape"](examples/multimodal_retrieval/tmdb_landscape.png)
+
 ## Testing
 
 There are a few different kinds of tests in this repo:

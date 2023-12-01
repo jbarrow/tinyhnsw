@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy
+import pickle
 
 
 class Index:
@@ -27,8 +28,10 @@ class Index:
         raise NotImplementedError()
     
     def save(self, file: str) -> None:
-        pass
+        with open(file, 'wb') as f:
+            pickle.dump(self, f)
 
     @classmethod
     def from_file(cls, file: str) -> Index:
-        pass
+        with open(file, 'rb') as f:
+            return pickle.load(f)

@@ -46,7 +46,7 @@ def load_tmdb(batch_size=64) -> Iterator[list]:
     images = []
     for file in PATHS[:512]:
         try:
-            images.append(load_image(fiile))
+            images.append(load_image(file))
             if len(images) == batch_size:
                 yield images
                 images = []

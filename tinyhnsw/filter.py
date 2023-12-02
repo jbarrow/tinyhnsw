@@ -7,6 +7,15 @@ import random
 
 
 class FilterableHNSWIndex(HNSWIndex):
+    """
+    A FilterableHNSWIndex implements the "missing WHERE clause" that Pinecone talks about
+    in their blog. It allows you to filter which nodes get added to the nearest neighbor
+    list by passing an allow-list to the index.
+
+    If no allow-list is passed, then the behavior defaults to the standard HNSWIndex.
+    We can make this change pretty non-invasively through the use of a layer_factory
+    function.
+    """
     def layer_factory(self, lc: int, ep: int | None = None) -> FilterableHNSWLayer:
         ep = ep or self.ep
         return FilterableHNSWLayer(self, lc, ep)
@@ -22,15 +31,20 @@ class FilterableHNSWIndex(HNSWIndex):
 
 
 class FilterableHNSWLayer(HNSWLayer):
+    """
+    The allow-list works by ensuring that only valid neighbors are added to the
+    candidate neighbor list (W).
+    """
     def search(
         self, q: numpy.ndarray, ep: int, ef: int, valid: list[int] | None = None
     ) -> tuple[list[float], list[int]]:
         ep_dist = self.distance_to_node(q, ep)
+        valid_set = set(valid)
 
         v = {ep}
         C = [(ep_dist, ep)]
         # this addresses the issue of not considering the ep if it's not a valid node:
-        W = [] if (valid and ep not in valid) else [(ep_dist, ep)]
+        W = [] if (valid and ep not in valid_set) else [(ep_dist, ep)]
 
         while len(C) > 0:
             d_c, c = heappop(C)
@@ -51,7 +65,7 @@ class FilterableHNSWLayer(HNSWLayer):
 
                 if len(W) == 0 or d_e < d_f or len(W) < ef:
                     heappush(C, (d_e, e))
-                    if valid is None or e in valid:
+                    if valid is None or e in valid_set:
                         heappush(W, (d_e, e))
                         if len(W) > ef:
                             W = nsmallest(ef, W, key=lambda x: x[0])

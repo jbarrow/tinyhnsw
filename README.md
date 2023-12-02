@@ -65,7 +65,7 @@ print(index.ntotal)
 You can also visualize each layer of the HNSW graph using the following code:
 
 ```python
-from tinyhnsw.hnsw import visualize_hnsw_index
+from tinyhnsw.visualization import visualize_hnsw_index
 
 # ... set up index here
 

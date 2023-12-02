@@ -91,11 +91,11 @@ if __name__ == "__main__":
     else:
         index = HNSWIndex.from_file("data/tmdb_index.pkl")
 
-    inputs = text_processor(text=["landscape"], return_tensors="pt", padding=True)
+    inputs = text_processor(text=["animated scene"], return_tensors="pt", padding=True)
     outputs = text_model(**inputs)
 
     q = outputs.text_embeds.detach().numpy()
 
     D, I = index.search(q, k=5)
 
-    visualize_query(I, "landscape")
+    visualize_query(I, "animated scene")

@@ -80,7 +80,7 @@ if __name__ == "__main__":
     text_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
     if not Path("data/tmdb_index.pkl").exists():
-        index = HNSWIndex(d=512)
+        index = HNSWIndex(d=512, distance='cosine')
 
         for images in load_tmdb():
             inputs = image_processor(images=images, return_tensors="pt", padding=True)
@@ -91,11 +91,11 @@ if __name__ == "__main__":
     else:
         index = HNSWIndex.from_file("data/tmdb_index.pkl")
 
-    inputs = text_processor(text=["animated scene"], return_tensors="pt", padding=True)
+    inputs = text_processor(text=["landscape"], return_tensors="pt", padding=True)
     outputs = text_model(**inputs)
 
     q = outputs.text_embeds.detach().numpy()
 
     D, I = index.search(q, k=5)
 
-    visualize_query(I, "animated scene")
+    visualize_query(I, "landscape")

@@ -1,6 +1,5 @@
 from __future__ import annotations
 from tinyhnsw.index import Index
-from tinyhnsw.knn import cosine_similarity, l2_distance
 from tinyhnsw.utils import load_sift, evaluate
 from dataclasses import dataclass
 from heapq import nlargest, nsmallest, heappop, heappush, heapify
@@ -30,18 +29,20 @@ class HNSWConfig:
 
 
 DEFAULT_CONFIG = HNSWConfig(
-        M=16,
-        M_max=16,
-        M_max0=32,
-        m_L=(1.0 / math.log(16)),
-        ef_construction=32,
-        ef_search=32,
-    )
+    M=16,
+    M_max=16,
+    M_max0=32,
+    m_L=(1.0 / math.log(16)),
+    ef_construction=32,
+    ef_search=32,
+)
 
 
 class HNSWIndex(Index):
-    def __init__(self, d: int, config: HNSWConfig = DEFAULT_CONFIG) -> None:
-        super().__init__(d)
+    def __init__(
+        self, d: int, distance: str = "cosine", config: HNSWConfig = DEFAULT_CONFIG
+    ) -> None:
+        super().__init__(d, distance)
 
         self.config = config
         self.vectors = None
@@ -92,8 +93,7 @@ class HNSWIndex(Index):
         if len(v.shape) == 1:
             v = numpy.expand_dims(v, axis=0)
 
-        # return 1.0 - cosine_similarity(q, v)
-        return l2_distance(q, v)
+        return self.f_distance(q, v)
 
     def search(self, q: numpy.ndarray, k: int) -> tuple[numpy.ndarray, numpy.ndarray]:
         ep = self.ep
@@ -226,18 +226,10 @@ if __name__ == "__main__":
     #     print(ix, index.search(v, 1))
 
     # visualize_hnsw_index(index)
-    config = HNSWConfig(
-        M=16,
-        M_max=16,
-        M_max0=32,
-        m_L=(1.0 / math.log(16)),
-        ef_construction=32,
-        ef_search=32,
-    )
 
     data, queries, labels = load_sift()
 
-    index = HNSWIndex(128, config=config)
+    index = HNSWIndex(128, distance="l2", config=DEFAULT_CONFIG)
     index.add(data)
 
     I = []

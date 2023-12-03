@@ -1,7 +1,8 @@
-# `tinyhnsw`
+# `tinyhnsw` - the littlest vector database
 
 TinyHNSW is a tiny, simple vector database.
-It's built on a straightforward implementation of HNSW in Python with minimal dependencies.
+It weighs in at a measly few hundred lines of code.
+It's built on a straightforward (but not fast) implementation of HNSW in Python with minimal dependencies.
 It has an associated set of tutorials that build up to understanding how HNSW works, and how you can build your own TinyHNSW.
 
 ⚠️ The vector database part of this works, but the tutorial is not yet complete. I will update the README checklist below as chapters and code are completed.

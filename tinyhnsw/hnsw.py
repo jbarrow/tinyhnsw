@@ -120,6 +120,11 @@ class HNSWLayer:
         else:
             self.M_max = self.config.M_max
 
+        if self.config.neighbors == "simple":
+            self.f_neighbors = self.select_neighbors
+        else:
+            self.f_neighbors = self.select_neighbors_heuristic
+
     def distance_to_node(self, q: numpy.ndarray, e: int) -> float:
         v = self.index.vectors[e]
         d = self.index.distance(q, v)[0]
@@ -164,13 +169,13 @@ class HNSWLayer:
             return
 
         D, W = self.search(q, ep, self.config.ef_construction)
-        neighbors = self.select_neighbors(D, W, self.config.M)
+        neighbors = self.f_neighbors(D, W, self.config.M)
         self.G.add_edges_from([(e, node, {"distance": float(d)}) for d, e in neighbors])
 
         for d, e in neighbors:
             if len(self.G[e]) > self.M_max:
                 D, W = list(zip(*[(self.G[e][n]["distance"], n) for n in self.G[e]]))
-                new_conn = self.select_neighbors(D, W, self.M_max)
+                new_conn = self.f_neighbors(D, W, self.M_max)
                 self.G.remove_edges_from([(e, e_n) for e_n in self.G[e]])
                 self.G.add_edges_from(
                     [(e, e_n, {"distance": d_n}) for d_n, e_n in new_conn]

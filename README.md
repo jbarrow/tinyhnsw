@@ -1,9 +1,14 @@
 # `tinyhnsw`
 
-TinyHNSW is a tiny, simple implementation of HNSW in Python with minimal dependencies.
-It has an associated set of tutorials that build up to understanding how HNSW works.
+TinyHNSW is a tiny, simple vector database.
+It's built on a straightforward implementation of HNSW in Python with minimal dependencies.
+It has an associated set of tutorials that build up to understanding how HNSW works, and how you can build your own TinyHNSW.
 
-⚠️ This tutorial is not yet complete -- it's merely something that I'm working on putting together. I will update the README as chapters are completed.
+⚠️ The vector database part of this works, but the tutorial is not yet complete. I will update the README checklist below as chapters and code are completed.
+
+⚠️ `tinyhnsw` is NOT production-quality.
+Compared to literally *any* standard implementation, it's slow and probably buggy.
+If you want to use an Approximate Nearest Neighbor library in a real application, consider something like FAISS.
 
 # Tutorial Outline
 
@@ -15,6 +20,8 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 6. [ ] [HNSW](chapters/5_hnsw.md)
 7. [ ] [Limitations](chapters/6_limitations.md)
 8. [ ] [Filtering and Hybrid Search](chapters/7_filtering.md)
+9. [ ] [Multimodal Retrieval with CLIP](examples/multimodal_retrieval/README.md)
+10. [ ] [Searching Text with Sentence Transformers](examples/sentence_transformers/README.md)
 
 ## Code
 
@@ -23,14 +30,12 @@ It has an associated set of tutorials that build up to understanding how HNSW wo
 3. [x] [Navigable Small Worlds](tinyhnsw/teaching/nsw.py)
 4. [x] [HNSW](tinyhnsw/hnsw.py)
 5. [x] [Filtering and Hybrid Search](tinyhnsw/filter.py)
+6. [x] [Multimodal Retrieval with CLIP](examples/multimodal_retrieval/multimodal_retrieval.py)
+7. [ ] [Searching Text with Sentence Transformers](examples/sentence_transformers/sentence_transformers.py)
 
 # Library Usage
 
-⚠️ `tinyhnsw` is NOT production-quality.
-Compared to literally *any* standard implementation, it's slow and probably buggy.
-If you want to use an Approximate Nearest Neighbor library in a real application, consider something like FAISS.
-
-With that disclaimer out of the way, here is how you use it/set it up.
+With the disclaimers out of the way, here is how you use it/set it up.
 
 ## Installation
 

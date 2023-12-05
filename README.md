@@ -146,6 +146,10 @@ Again, we provide a teaching implementation in this repo, but it's not meant for
 
 ## Proofs of Concept with CLIP and Sentence Transformers
 
+```sh
+python examples/multimodal_retrieval/multimodal_retrieval.py "animated scene"
+```
+
 ![Searching for "animated scene"](examples/multimodal_retrieval/tmdb_animated_scene.png)
 ![Searching for "landscape"](examples/multimodal_retrieval/tmdb_landscape.png)
 

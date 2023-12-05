@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import requests
 import copy
 import csv
+import sys
 
 
 def download_tmdb():
@@ -70,6 +71,8 @@ def visualize_query(query_results: list[int], query: str) -> None:
 
 
 if __name__ == "__main__":
+    query = sys.argv[1]
+
     image_model = CLIPVisionModelWithProjection.from_pretrained(
         "openai/clip-vit-base-patch32"
     )
@@ -80,7 +83,7 @@ if __name__ == "__main__":
     text_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
     if not Path("data/tmdb_index.pkl").exists():
-        index = HNSWIndex(d=512, distance='cosine')
+        index = HNSWIndex(d=512, distance='cos')
 
         for images in load_tmdb():
             inputs = image_processor(images=images, return_tensors="pt", padding=True)
@@ -91,11 +94,11 @@ if __name__ == "__main__":
     else:
         index = HNSWIndex.from_file("data/tmdb_index.pkl")
 
-    inputs = text_processor(text=["landscape"], return_tensors="pt", padding=True)
+    inputs = text_processor(text=[query], return_tensors="pt", padding=True)
     outputs = text_model(**inputs)
 
     q = outputs.text_embeds.detach().numpy()
 
     D, I = index.search(q, k=5)
 
-    visualize_query(I, "landscape")
+    visualize_query(I, query)

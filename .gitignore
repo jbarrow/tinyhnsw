@@ -1,5 +1,6 @@
 .DS_Store
 poetry.lock
 
+dist/
 *.pyc
 __pycache__

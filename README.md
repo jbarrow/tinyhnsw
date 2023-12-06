@@ -43,7 +43,7 @@ With the disclaimers out of the way, here is how you use it/set it up.
 To install `tinyhnsw`, run the following command:
 
 ```sh
-pip install -Ue .
+pip install tinyhnsw
 ```
 
 This will install the library and all its dependencies (`numpy`, `networkx`, `scipy`, `tqdm`).

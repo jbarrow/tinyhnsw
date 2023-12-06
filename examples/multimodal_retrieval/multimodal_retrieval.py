@@ -12,66 +12,65 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 import requests
-import copy
 import csv
 import sys
 
 
-def download_tmdb():
-    dataset_dir = Path("data/tmdb")
-    dataset_dir.mkdir(exist_ok=True, parents=True)
+class TMDBDataset:
+    def __init__(self, dataset_dir="data/tmdb", batch_size=64):
+        self.dataset_dir = Path(dataset_dir)
+        self.batch_size = batch_size
+        self.paths = list(self.dataset_dir.glob("*.jpg"))
 
-    with open("data/tmdb.csv") as fp:
-        reader = csv.DictReader(fp)
-        dataset = [row for row in reader]
+    def download(self):
+        self.dataset_dir.mkdir(exist_ok=True, parents=True)
 
-    for d in tqdm(dataset):
-        image_url = d["path"]
-        image_data = requests.get(image_url).content
-        with open(f'data/tmdb/{image_url.split("/")[-1]}', "wb") as handler:
-            handler.write(image_data)
+        with open("data/tmdb.csv") as fp:
+            reader = csv.DictReader(fp)
+            dataset = [row for row in reader]
 
+        for d in tqdm(dataset):
+            image_url = d["path"]
+            image_data = requests.get(image_url).content
+            with open(f'{self.dataset_dir}/{image_url.split("/")[-1]}', "wb") as handler:
+                handler.write(image_data)
 
-PATHS = list(Path("data/tmdb").glob("*.jpg"))
+    def load_image(self, path):
+        with Image.open(path) as im:
+            return im.copy()
 
+    def load(self) -> Iterator[list]:
+        if not self.dataset_dir.exists():
+            self.download()
 
-def load_image(path):
-    with Image.open(path) as im:
-        return copy.deepcopy(im)
+        images = []
+        for file in self.paths[:512]:
+            try:
+                images.append(self.load_image(file))
+                if len(images) == self.batch_size:
+                    yield images
+                    images = []
+            except UnidentifiedImageError:
+                continue
 
-
-def load_tmdb(batch_size=64) -> Iterator[list]:
-    if not Path("data/tmdb").exists():
-        download_tmdb()
-
-    images = []
-    for file in PATHS[:512]:
-        try:
-            images.append(load_image(file))
-            if len(images) == batch_size:
-                yield images
-                images = []
-        except UnidentifiedImageError:
-            continue
-
-    if images:  # yield any remaining images
-        yield images
+        if images:  # yield any remaining images
+            yield images
 
 
-def visualize_query(query_results: list[int], query: str) -> None:
+def visualize_query(query_results: list[int], query: str, dataset: TMDBDataset) -> None:
     plt.figure(figsize=(3, 7))
     plt.title(query)
     plt.axis("off")
     for i, result in enumerate(query_results):
         plt.subplot(len(query_results), 1, i + 1)
-        plt.imshow(load_image(PATHS[result]))
+        plt.imshow(dataset.load_image(dataset.paths[result]))
         plt.axis("off")
     plt.tight_layout()
     plt.show()
 
 
-if __name__ == "__main__":
-    query = sys.argv[1]
+def main(query):
+    dataset = TMDBDataset()
 
     image_model = CLIPVisionModelWithProjection.from_pretrained(
         "openai/clip-vit-base-patch32"
@@ -82,17 +81,18 @@ if __name__ == "__main__":
     )
     text_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-    if not Path("data/tmdb_index.pkl").exists():
+    index_file = Path("data/tmdb_index.pkl")
+    if not index_file.exists():
         index = HNSWIndex(d=512, distance='cos')
 
-        for images in load_tmdb():
+        for images in dataset.load():
             inputs = image_processor(images=images, return_tensors="pt", padding=True)
             outputs = image_model(**inputs)
             index.add(outputs.image_embeds.detach().numpy())
 
-        index.save("data/tmdb_index.pkl")
+        index.save(index_file)
     else:
-        index = HNSWIndex.from_file("data/tmdb_index.pkl")
+        index = HNSWIndex.from_file(index_file)
 
     inputs = text_processor(text=[query], return_tensors="pt", padding=True)
     outputs = text_model(**inputs)
@@ -101,4 +101,9 @@ if __name__ == "__main__":
 
     D, I = index.search(q, k=5)
 
-    visualize_query(I, query)
+    visualize_query(I, query, dataset)
+
+
+if __name__ == "__main__":
+    query = sys.argv[1]
+    main(query)

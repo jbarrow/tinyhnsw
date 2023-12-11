@@ -1,5 +1,6 @@
 from tinyhnsw import HNSWIndex
 
+import random
 import networkx
 import matplotlib.pyplot as plt
 
@@ -29,9 +30,20 @@ def visualize_hnsw_index(index: HNSWIndex):
     plt.show()
 
 
-def generate_tiny_world():
+def generate_tiny_world(n_nodes: int, width: int, height: int):
     """
     'tiny world' is a set of 2d points (snapped to an integer grid) that we're
     going to use to visualize HNSW in 2 dimensions.
     """
-    pass
+    xs = [random.randint(0, width-1) for _ in range(n_nodes)]
+    ys = [random.randint(0, height-1) for _ in range(n_nodes)]
+
+    return {ix: (xs[ix], ys[ix]) for ix in range(n_nodes)}
+
+
+if __name__ == "__main__":
+    G = networkx.random_lobster(5, 0.6, 0.3)
+    layout = generate_tiny_world(len(G), 100, 100)
+    networkx.draw(G, layout)
+
+    plt.show()

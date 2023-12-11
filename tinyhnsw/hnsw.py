@@ -164,6 +164,9 @@ class HNSWLayer:
         return tuple(zip(*W))
 
     def insert(self, q: numpy.ndarray, node: int, ep: int) -> None:
+        if node in self.G:
+            return
+
         if len(self.G) == 0:
             self.G.add_node(node)
             return

@@ -32,7 +32,7 @@ If you want to use an Approximate Nearest Neighbor library in a real application
 4. [x] [HNSW](tinyhnsw/hnsw.py)
 5. [x] [Filtering and Hybrid Search](tinyhnsw/filter.py)
 6. [x] [Multimodal Retrieval with CLIP](examples/multimodal_retrieval/multimodal_retrieval.py)
-7. [ ] [Searching Text with Sentence Transformers](examples/sentence_transformers/sentence_transformers.py)
+7. [x] [Searching Text with Sentence Transformers](examples/sentence_transformers/sentence_transformers.py)
 
 # Library Usage
 

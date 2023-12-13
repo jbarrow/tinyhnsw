@@ -13,7 +13,7 @@ If you want to use an Approximate Nearest Neighbor library in a real application
 
 # Tutorial Outline
 
-1. [ ] [Introduction](chapters/0_introduction.md)
+1. [x] [Introduction](chapters/0_introduction.md)
 2. [ ] [Nearest Neighbor Search](chapters/1_nearest_neighbor_search.md)
 3. [ ] [An Overview of HNSW](chapters/2_hnsw_overview.md)
 4. [ ] [Skip Lists](chapters/3_skip_lists.md)

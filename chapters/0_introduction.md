@@ -24,6 +24,8 @@ After spending a few evenings going through this, you will have a deep grasp of 
 
 ## What this tutorial isn't
 
+Although I will try to cover the introductory concepts at a high-level, this tutorial probably isn't the best introduction to concepts like: "what is a vector".
+
 ## Some Concepts
 
 - `vector database`

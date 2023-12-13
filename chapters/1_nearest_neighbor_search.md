@@ -1,4 +1,6 @@
-# Nearest Neighbor Search
+# The Simplest Vector Database: Nearest Neighbor Search
+
+In this part of the tutorial, we're going to build the simplest vector database, but one that scales _terribly_.
 
 - what is nearest neighbor search
 - why is nearest neighbor search

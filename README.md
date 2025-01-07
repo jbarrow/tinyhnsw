@@ -13,6 +13,8 @@ If you want to use an Approximate Nearest Neighbor library in a real application
 
 # Tutorial Outline
 
+Tutorial is both in this repo and being written/copied [on my personal blog](https://notes.penpusher.app/Joe+Notes#%60TinyHNSW%60+Build+Your+Own+Vector+Database).
+
 1. [x] [Introduction](chapters/0_introduction.md)
 2. [ ] [Nearest Neighbor Search](chapters/1_nearest_neighbor_search.md)
 3. [ ] [An Overview of HNSW](chapters/2_hnsw_overview.md)
